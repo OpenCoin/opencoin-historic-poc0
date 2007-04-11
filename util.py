@@ -4,7 +4,7 @@
 def partition(value, denominations):
     """
     Partition an integer into smaller summands from a given 
-    list of possible summands. Return list of summands
+    list of possible summands. Return list of summands 
     """
     denominations.sort()
     smallest=denominations[0]
@@ -24,3 +24,11 @@ def partition(value, denominations):
 	rest -= smallest
 
     return (part, rest)
+
+
+def _test():
+    import doctest
+    doctest.testmod()
+
+if __name__ == "__main__":
+    _test()
