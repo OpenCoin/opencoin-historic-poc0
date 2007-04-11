@@ -2,7 +2,7 @@
 
 import Issuer
 from Coin import Coin
-
+from util import *
 
 class Wallet:
 
@@ -53,7 +53,7 @@ class Wallet:
         
         for v in values:
             #create blanks
-            coin = Coin(issuer.url,issuer.getPubKeys()[v],v)
+            coin = Coin(issuer.getUrl(),decodeKey(issuer.getPubKeys_encoded()[str(v)]),v)
             blind = coin.getBlind()
             hash = coin.getHash()
             self.coins[hash] = coin
@@ -66,10 +66,10 @@ class Wallet:
         
         for hash,coin in self.pending.items():
             issuer = self.issuers[coin.issuerurl]
-            
-            status,message = issuer.getSignedBlind(coin.getBlind(),coin.value)
+            print  (str(coin.getBlind()).encode('base64'),coin.value)
+            status,message = issuer.getSignedBlind(str(coin.getBlind()).encode('base64'),coin.value)
             if status == 200:
-                coin.setSignature(message)
+                coin.setSignature(long(message))
                 self.valid[hash] = coin
                 del(self.pending[hash])
 
@@ -113,6 +113,7 @@ def debug():
     print w.getBalance()
     w.createCoins([1,1,2],url)
     print w.getBalance()
+    return w
 
 def _test():
     import doctest

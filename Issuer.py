@@ -1,4 +1,5 @@
 import Mint
+from util import *
 
 class Issuer:
      
@@ -10,7 +11,10 @@ class Issuer:
         self.signed = {}
         self.pending = {}
         self.failed = {} #blind,reason
-        
+    
+    def getUrl(self):
+        return self.url
+
     def getPubKeys(self):
         """Return the public keys for signing coins
         >>> i = Issuer('http://localhost',[1,2])
@@ -19,6 +23,9 @@ class Issuer:
         """
         return self.mint.getPubKeys()
 
+
+    def getPubKeys_encoded(self):
+        return dict([(str(u),encodeKey(k)) for u,k in self.getPubKeys().items()])
 
     def triggerMinting(self):
         """
@@ -37,8 +44,9 @@ class Issuer:
 
     def getSignedBlind(self,blind,value):
         
+        blind = blind.decode('base64')
         if self.signed.has_key(blind):
-            return (200,self.signed[blind])
+            return (200,str(self.signed[blind]))
         
         elif self.failed.has_key(blind):
             return self.failed.pop(blind)
@@ -51,6 +59,8 @@ class Issuer:
             self.pending[blind]=value
             self.triggerMinting()
             return (301, 'blind accepted, not finished')
+
+
 
 
 def _test():

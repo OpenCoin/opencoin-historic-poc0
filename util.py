@@ -1,5 +1,11 @@
 """Utility functions"""
+import pickle
 
+def encodeKey(key):
+    return pickle.dumps(key)
+
+def decodeKey(string):
+    return pickle.loads(string)
 
 def partition(value, denominations):
     """
