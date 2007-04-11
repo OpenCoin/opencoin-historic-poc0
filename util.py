@@ -9,9 +9,19 @@ def decodeKey(string):
 
 def partition(value, denominations):
     """
-    Partition an integer into smaller summands from a given 
-    list of possible summands. Return list of summands 
+    Partition an integer into smaller summands from a given list 
+    of allowed summands. Return list of summands and rest.
+
+    >>> partition(45, [64,32,16,8,4,2,1])
+    ([16, 8, 8, 4, 4, 2, 1, 1, 1], 0)
+    >>> partition(45, [64,32,16,8])
+    ([16, 8, 8, 8], 5)
+    >>> partition(45, [64,32])
+    ([32], 13)
+    >>> partition(45, [64])
+    ([], 45)
     """
+
     denominations.sort()
     smallest=denominations[0]
 
