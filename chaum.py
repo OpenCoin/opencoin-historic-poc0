@@ -22,7 +22,7 @@ HASHSIZE = sha.digestsize*8
 
 ### Initialization ###
 
-if os.path.isfile(KEYFILE):
+if 0 and os.path.isfile(KEYFILE):
     # Load existing key """
     print "Server: load key..."
     ff = file(KEYFILE, 'r')

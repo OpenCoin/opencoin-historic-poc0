@@ -4,3 +4,11 @@
 #Mint - this just does the minting of the coins, nothing else
 #
 #Coin - and of course the coin itself
+
+
+def _test():
+    import doctest
+    doctest.testmod()
+
+if __name__ == "__main__":
+    _test()
