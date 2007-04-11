@@ -7,20 +7,25 @@ def encodeKey(key):
 def decodeKey(string):
     return pickle.loads(string)
 
-def partition(value, denominations):
+def partition(denominations,value):
     """
     Partition an integer into smaller summands from a given list 
     of allowed summands. Return list of summands and rest.
 
-    >>> partition(45, [64,32,16,8,4,2,1])
+    >>> partition([64,32,16,8,4,2,1],45)
     ([16, 8, 8, 4, 4, 2, 1, 1, 1], 0)
-    >>> partition(45, [64,32,16,8])
+    >>> partition([64,32,16,8],45)
     ([16, 8, 8, 8], 5)
-    >>> partition(45, [64,32])
+    >>> partition([64,32],45)
     ([32], 13)
-    >>> partition(45, [64])
+    >>> partition([64],45)
     ([], 45)
+    >>> partition([],45)
+    ([], 45)
+
     """
+    if not denominations:
+        return ([],value)
 
     denominations.sort()
     smallest=denominations[0]
@@ -29,15 +34,15 @@ def partition(value, denominations):
     rest = value
 
     while rest > 0 :
-	denominations = [i for i in denominations if i <= rest/2]
-	if denominations == [] : break
+        denominations = [i for i in denominations if i <= rest/2]
+        if denominations == [] : break
         p = max (denominations)
-	part.append(p)
-	rest -= p
+        part.append(p)
+        rest -= p
 
     while rest >= smallest :
-	part.append(smallest)
-	rest -= smallest
+        part.append(smallest)
+        rest -= smallest
 
     return (part, rest)
 

@@ -1,5 +1,5 @@
 from SimpleXMLRPCServer import SimpleXMLRPCServer
-server = SimpleXMLRPCServer(("localhost", 8000))
+server = SimpleXMLRPCServer(("0.0.0.0", 8000))
 import Issuer
 i = Issuer.Issuer('http://localhost',[1,2])
 server.register_function(i.getSignedBlind)
