@@ -20,6 +20,7 @@ class Coin:
         self.serial = "%s %s %s" % (value,issuerurl, number.getRandomNumber(serialsize, pool.get_bytes))
         self.signature = None
         self.blindingFactor = number.getRandomNumber(self.pubkey.size() - 1, pool.get_bytes)
+        self.deleted = None
 
     def __repr__(self):
         return "<Coin(%s,%s,%s)>" % (self.issuerurl,self.pubkey,self.value)

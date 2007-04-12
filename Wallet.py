@@ -1,6 +1,5 @@
 #The purse
 
-import Issuer
 from Coin import Coin
 from util import *
 
@@ -9,7 +8,8 @@ class Wallet:
     def __init__(self,issuers):
         """
         Setup a wallet
-        >>> url = 'http://localhost'
+        >>> import Issuer
+        >>> url = 'http://opencoin.net/cur1'
         >>> i = Issuer.Issuer(url,[1,2])
         >>> w = Wallet({url:i})
 
@@ -28,16 +28,47 @@ class Wallet:
         >>> w.fetchSignedBlinds()
         >>> {url:4} == w.getBalance()
         True
-        
+
+        Have another wallet
+        >>> w2 = Wallet({url:i})
+        >>> coin = w.valid.values()[0]
+
+        #>>> `w.getBalance()`
+        #>>> `w2.getBalance()`
+
+        >>> w.sendCoins(w2,[coin])
+        >>> coin.value == w2.getBalance()[url]
+        True
+
+        #>>> `w.getBalance()`
+        #>>> `w.valid`
+        #>>> `w2.getBalance()`
+
+
+        Redeem a coin
+        >>> w2.sendCoins(i,[coin],'my account: 123')
+        money redeemed
+
+        >>> w2.sendCoins(i,[coin],'my account: 124')
+
+
+
+        dict = {}: dict(a=2,b=3)
+        list = []: [a,b,c]
+        tuple = (): (a,b,c)
+
         """
         #init
         self.issuers = issuers
         self.blanks = []
+        #TODO: replace dicts with lists/properties whatever
         self.coins = {}
         self.new = {}
         self.pending = {}
         self.valid = {}
-        
+        self.cointainers = ['coins','valid','pending','new']
+        self.callbacks = {}
+
     def values(self):
         #returns the values of all holded coins
         return []
@@ -66,7 +97,7 @@ class Wallet:
         
         for hash,coin in self.pending.items():
             issuer = self.issuers[coin.issuerurl]
-            print  (str(coin.getBlind()).encode('base64'),coin.value)
+            #print  (str(coin.getBlind()).encode('base64'),coin.value)
             status,message = issuer.getSignedBlind(str(coin.getBlind()).encode('base64'),coin.value)
             if status == 200:
                 coin.setSignature(long(message))
@@ -89,6 +120,40 @@ class Wallet:
         return out
 
 
+    def sendCoins(self,receiver,coins,message=None):
+        coins_encoded = [encodeCoin(coin) for coin in coins] 
+        result = receiver.receiveCoins(coins_encoded,message)
+        if result:
+            for coin in coins:
+                self.deleteCoin(coin)
+
+
+    def receiveCoins(self,coins,message=None):
+        coins_decoded = [decodeCoin(coin) for coin in coins] 
+        for callback in getCallbacks(self,'receiveCoins'):
+            callback(self,coins,message)
+        for coin in coins_decoded:
+            #TODO make checks (double, allowedbanks)
+            hash = coin.getHash()
+            issuer = self.issuers[coin.issuerurl]
+            issuer.checkDoubleSpending([coin.getHash()])
+            if self.coins.has_key(hash):
+                raise 'NilsWantsToSeeThisError'
+            else:
+                self.coins[hash] = coin
+                self.valid[hash] = coin
+                return True
+
+
+    def deleteCoin(self,coin):
+        for var in self.cointainers:
+            d = getattr(self,var,{})
+            hash = coin.getHash()
+            if d.has_key(hash):
+               del(d[hash])
+        coin.deleted = True
+
+
     def createCoin(self,value):
         #creates a coin, keeps it, return it as well
         return 'coin'
@@ -105,6 +170,19 @@ class Wallet:
     def receive(self,coins):
         #receive some money
         return 'value'
+
+from SimpleXMLRPCServer import SimpleXMLRPCServer
+class WalletServer (Wallet):
+
+    def __init__(self,issuers,ip="0.0.0.0",port="8000"):
+        Wallet.__init__(self,issuers)
+        server = SimpleXMLRPCServer((ip, port))
+        server.register_function(self.receiveCoins)
+        server.serve_forever()
+
+
+
+
 
 def debug():
     url = 'http://localhost'

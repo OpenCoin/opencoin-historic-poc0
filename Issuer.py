@@ -1,5 +1,6 @@
 import Mint
 from util import *
+from Wallet import Wallet
 
 class Issuer:
      
@@ -11,7 +12,27 @@ class Issuer:
         self.signed = {}
         self.pending = {}
         self.failed = {} #blind,reason
-    
+        self.redeemed = {}
+        self.wallet = Wallet({self.url:self})
+
+    def receiveCoins(self,coins,message=None):
+        try:
+            self.wallet.receiveCoins(coins,message)
+            for coin in coins:
+                coin = decodeCoin(coin)
+                self.redeemed[coin.getHash()] = coin
+            print 'money redeemed'
+            return True
+        except Exception, e:
+            return False
+
+    def checkDoubleSpending(self,hashes):
+        keys = self.redeemed.keys()
+        for hash in hashes:
+            if hash in keys:
+                raise 'DoubleSpending'
+        return True
+
     def getUrl(self):
         return self.url
 

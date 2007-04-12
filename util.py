@@ -7,6 +7,47 @@ def encodeKey(key):
 def decodeKey(string):
     return pickle.loads(string)
 
+
+def encodeCoin(coin):
+    return pickle.dumps(coin).encode('base64')
+    
+def decodeCoin(string):
+    return pickle.loads(string.decode('base64'))
+
+
+#Testing class for register Callback
+class Testclass:
+
+    def __init__(self):
+        self.callbacks = {}
+
+    def foo(self):
+        print 'foo'
+        for cb in getCallbacks(self,'foo'):
+            cb()
+
+#Simple standalone function
+def bar():
+    print 'bar'
+
+def test_callbacks():
+    """
+    >>> t = Testclass()
+    >>> registerCallback(t,'foo',bar)
+    >>> t.foo()
+    foo
+    bar
+    """
+
+
+def registerCallback(obj,event,callback):
+        getCallbacks(obj,event).append(callback)
+
+def getCallbacks(obj,event):
+    if hasattr(obj,'callbacks'):
+        return obj.callbacks.setdefault(event,[])
+
+        #obj.callbacks[event].append(callback)
 def partition(denominations,value):
     """
     Partition an integer into smaller summands from a given list 
