@@ -90,25 +90,51 @@ def partition(denominations,value):
     return (part, rest)
 
 
-def split(piece_list, sum):
+def splitSum(piece_list, sum):
 
-    # delete all coins greater than sum
-    my_list = [p for p in piece_list if p <= sum].sort(reverse=True)
+    """
+    >>> splitSum([8,8,4,2,2,1,1,1], 27)
+    [1, 1, 1, 2, 2, 4, 8, 8]
+    >>> splitSum([8,8,4,2,2,1,1,1], 28)
+    []
+    >>> splitSum([50,20,20,20], 60)
+    [20, 20, 20]
+    >>> splitSum([50,20,20,20,10], 60)
+    [10, 50]
+    """
 
-    while not my_list == [] :
-        test_piece = my_list[0]
-	my_list.remove(test_piece)
-        test_partition = split(my_list, rest - test_value)
+    s = 0
+    for p in piece_list : s += p
+    if s < sum : return []
 
-        if test_partition == [] :
-            # damned, partitioning the rest failed, so remove all pieces of this size
-            my_list = [p for p in my_list if p < test_piece]
-        else :
-            return test_partition.append(test_piece)
+    def my_split(piece_list, sum):
+
+        #print piece_list, sum
+        # delete all coins greater than sum
+        my_list = [p for p in piece_list if p <= sum]
+        my_list.sort(reverse=True)
+
+        while not my_list == [] :
+            test_piece = my_list[0]
+            if test_piece == sum : 
+                return [test_piece]
+	    my_list.remove(test_piece)
+            test_partition = my_split(my_list, sum - test_piece)
+
+            if test_partition == [] :
+                #print "AIIH"
+                # damned, partitioning the rest failed, so remove all pieces of this size
+                my_list = [p for p in my_list if p < test_piece]
+            else :
+                #print "test_partition: ", test_partition
+                test_partition.append(test_piece)
+                return test_partition
     
-    # if we are here, we're toasted:
-    return []
+        # if we are here, we're toasted:
+        return []
         
+    return my_split(piece_list, sum)
+
 
 def _test():
     import doctest
