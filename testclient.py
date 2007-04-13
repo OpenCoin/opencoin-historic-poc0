@@ -17,7 +17,7 @@ print w.getBalance()
 coin = w.valid.values()[0]
 
 w.sendCoins(i,[coin],'foobar')
-
+w.sendCoins(i,[coin],'foobar')
 #w2 = xmlrpclib.ServerProxy('http://localhost:8001')
 #coin = w.valid.values()[0]
 #print `coin`

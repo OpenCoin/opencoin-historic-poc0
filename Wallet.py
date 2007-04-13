@@ -51,6 +51,9 @@ class Wallet:
         money redeemed
 
         #>>> w2.sendCoins(i,[coin],'my account: 124')
+        Traceback (most recent call last):
+        ...
+        DoubleSpending
 
 
         dict = {}: dict(a=2,b=3)
