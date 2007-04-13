@@ -90,12 +90,24 @@ def partition(denominations,value):
     return (part, rest)
 
 
-def select_values(value_list, sum)
-    rest = sum
+def split(piece_list, sum):
+
     # delete all coins greater than sum
-    value_list = [v for v in value_list if v <= sum]
-    while not value_list = []
-        max_value = 
+    my_list = [p for p in piece_list if p <= sum].sort(reverse=True)
+
+    while not my_list == [] :
+        test_piece = my_list[0]
+	my_list.remove(test_piece)
+        test_partition = split(my_list, rest - test_value)
+
+        if test_partition == [] :
+            # damned, partitioning the rest failed, so remove all pieces of this size
+            my_list = [p for p in my_list if p < test_piece]
+        else :
+            return test_partition.append(test_piece)
+    
+    # if we are here, we're toasted:
+    return []
         
 
 def _test():
