@@ -14,7 +14,8 @@ class Wallet:
         >>> w = Wallet({url:i})
 
         Create coins
-        >>> w.createCoins([1,1,2],url)
+        >>> coin_values, rest = partition(i.mint.keys.keys(),20)
+        >>> w.createCoins(coin_values,url)
 
         The coins are only created,
         not signed yet
@@ -26,7 +27,7 @@ class Wallet:
         >>> w.getBalance()
         {}
         >>> w.fetchSignedBlinds()
-        >>> {url:4} == w.getBalance()
+        >>> {url:20} == w.getBalance()
         True
 
         Have another wallet
@@ -49,8 +50,7 @@ class Wallet:
         >>> w2.sendCoins(i,[coin],'my account: 123')
         money redeemed
 
-        >>> w2.sendCoins(i,[coin],'my account: 124')
-
+        #>>> w2.sendCoins(i,[coin],'my account: 124')
 
 
         dict = {}: dict(a=2,b=3)

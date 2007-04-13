@@ -48,6 +48,8 @@ def getCallbacks(obj,event):
         return obj.callbacks.setdefault(event,[])
 
         #obj.callbacks[event].append(callback)
+
+
 def partition(denominations,value):
     """
     Partition an integer into smaller summands from a given list 
@@ -87,6 +89,14 @@ def partition(denominations,value):
 
     return (part, rest)
 
+
+def select_values(value_list, sum)
+    rest = sum
+    # delete all coins greater than sum
+    value_list = [v for v in value_list if v <= sum]
+    while not value_list = []
+        max_value = 
+        
 
 def _test():
     import doctest

@@ -13,6 +13,7 @@ class Mint:
         """Sets up a mint for an issuer url, creating keys for the denominations
         >>> m = Mint('http://localhost',[1,2])
         """
+        # ToDo: replace "keys" woth "pubkeys"
         self.keys = {}
         for d in denominations:
             self.keys[d] = RSA.generate(keysize, pool.get_bytes)
