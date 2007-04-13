@@ -2,7 +2,7 @@ TODO:
 
 * fake account bank
 * automatic coin selection for summarized amounts
-* permanent storage (file) of wallet, DSDB, mint-keys
+* permanent storage (file) of wallet, DSDB, mint-keys (Done for issuer)
 * coin exchange
 * regular mint key rotation
 * currency description certificate (textfile or X.509v3 cert?) and parsing:

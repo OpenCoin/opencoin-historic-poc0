@@ -17,6 +17,9 @@ class Wallet:
         >>> coin_values, rest = partition(i.mint.keys.keys(),20)
         >>> w.createCoins(coin_values,url)
 
+        >>> w.createCoins(17,url)
+
+
         The coins are only created,
         not signed yet
         >>> w.getBalance()
@@ -27,8 +30,9 @@ class Wallet:
         >>> w.getBalance()
         {}
         >>> w.fetchSignedBlinds()
-        >>> {url:20} == w.getBalance()
+        >>> {url:37} == w.getBalance()
         True
+        
 
         Have another wallet
         >>> w2 = Wallet({url:i})
@@ -80,11 +84,14 @@ class Wallet:
         #returns all holded coins
         return []
 
-    def createCoins(self,values,issuerurl=None):
+    def createCoins(self,values,issuerurl):
         """requests a coin of a value from the specified issuer
         """
         issuer = self.issuers[issuerurl]    
-        
+         
+        if type(values) != type([]):
+            values, rest = partition(issuer.getPubKeys().keys(),int(values))
+
         for v in values:
             #create blanks
             coin = Coin(issuer.getUrl(),decodeKey(issuer.getPubKeys_encoded()[str(v)]),v)
