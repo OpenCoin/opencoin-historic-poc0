@@ -1,3 +1,4 @@
+# (c) 2007 Nils Toedtmann, Joerg Baach, License GPL
 #The mighty coin
 import time, pprint, os, sha
 from Crypto.PublicKey import *

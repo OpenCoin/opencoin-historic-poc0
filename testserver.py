@@ -1,3 +1,4 @@
+# (c) 2007 Nils Toedtmann, Joerg Baach, License GPL
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 import os, pickle
 

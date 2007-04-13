@@ -1,3 +1,5 @@
+# (c) 2007 Nils Toedtmann, Joerg Baach, License GPL
+
 import time, pprint, os, sha
 from Crypto.PublicKey import *
 from Crypto.Util.randpool import RandomPool

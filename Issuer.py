@@ -1,3 +1,5 @@
+# (c) 2007 Nils Toedtmann, Joerg Baach, License GPL
+
 import Mint
 from util import *
 from Wallet import Wallet

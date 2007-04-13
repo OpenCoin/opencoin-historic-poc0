@@ -1,4 +1,5 @@
 """Utility functions"""
+# (c) 2007 Nils Toedtmann, Joerg Baach, License GPL
 import pickle
 
 def encodeKey(key):
