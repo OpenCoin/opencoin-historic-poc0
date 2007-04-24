@@ -1,6 +1,6 @@
 # (c) 2007 Nils Toedtmann, Joerg Baach, License GPL
 #The purse
-
+#foobar
 from Coin import Coin
 from util import *
 
