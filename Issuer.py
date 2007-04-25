@@ -32,7 +32,8 @@ class Issuer:
         keys = self.redeemed.keys()
         for hash in hashes:
             if hash in keys:
-                raise 'DoubleSpending'
+                # raise 'DoubleSpending'
+                return False
         return True
 
     def getUrl(self):

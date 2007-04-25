@@ -8,64 +8,89 @@ class Wallet:
 
     def __init__(self,issuers):
         """
-        Setup a wallet
+        Setup an issuer and two wallets:
         >>> import Issuer
         >>> url = 'http://opencoin.net/cur1'
-        >>> i = Issuer.Issuer(url,[1,2])
-        >>> w = Wallet({url:i})
+        >>> i   = Issuer.Issuer(url,[1,2,4,8])
+        >>> w1  = Wallet({url:i})
+        >>> w2  = Wallet({url:i})
 
-        Create coins
+        Wallet #1 creates blank (=unsigned) coins
         >>> coin_values, rest = partition(i.mint.keys.keys(),20)
-        >>> w.createCoins(coin_values,url)
-
-        >>> w.createCoins(17,url)
-
-
-        The coins are only created,
-        not signed yet
-        >>> w.getBalance()
+        >>> w1.createCoins(coin_values,url)
+        >>> w1.createCoins(17,url)
+        >>> w1.getBalance()
         {}
 
-
-        >>> w.fetchSignedBlinds()
-        >>> w.getBalance()
+        Wallet #1 sends the blinds to the issuer and fetcher their sigs:
+        >>> w1.fetchSignedBlinds()
+        >>> w1.getBalance()
         {}
-        >>> w.fetchSignedBlinds()
-        >>> {url:37} == w.getBalance()
+        >>> w1.fetchSignedBlinds()
+        >>> {url:37} == w1.getBalance()
         True
         
-
-        Have another wallet
-        >>> w2 = Wallet({url:i})
-        >>> coin = w.valid.values()[0]
-
-        #>>> `w.getBalance()`
+        #>>> `w1.getBalance()`
         #>>> `w2.getBalance()`
+        >>> w1coins =  w1.valid.values()
 
-        >>> w.sendCoins(w2,[coin])
-        >>> coin.value == w2.getBalance()[url]
+        Wallet #1 sends coins #0 and #1 to wallet #2:
+        >>> w1.sendCoins(w2,[w1coins[0],w1coins[1]])
+        >>> w2.getBalance()[url] == w1coins[0].value + w1coins[1].value 
         True
 
-        #>>> `w.getBalance()`
-        #>>> `w.valid`
-        #>>> `w2.getBalance()`
-
-
-        Redeem a coin
-        >>> w2.sendCoins(i,[coin],'my account: 123')
-        money redeemed
-
-        #>>> w2.sendCoins(i,[coin],'my account: 124')
+        Wallet #1 sends coin #1 twice:
+        >>> w1.sendCoins(w2,[w1coins[1]])
         Traceback (most recent call last):
         ...
-        DoubleSpending
+        REJECT COIN: already in wallet
+
+        Wallet #1 sends coin #2 with wrong value/pubkey pair:
+        >>> if     w1coins[2].value == 1 : w1coins[2].pubkey = i.getPubKeys()[2]
+        >>> if not w1coins[2].value == 1 : w1coins[2].pubkey = i.getPubKeys()[1]
+        >>> w1.sendCoins(w2,[w1coins[2]])
+        Traceback (most recent call last):
+        ...
+        REJECT COIN: bad issuer pubKey
+
+        Wallet #1 sends coin #3 with wrong signature
+        >>> w1coins[3].signature += 1
+        >>> w1.sendCoins(w2,[w1coins[3]])
+        Traceback (most recent call last):
+        ...
+        REJECT COIN: bad signature
+
+        Wallet #1 redeems coin #4 before sending it to wallet #2:
+        >>> w1.sendCoins(i, [w1coins[4]],'my account: 121')
+        money redeemed
+        >>> w1.sendCoins(w2,[w1coins[4]])
+        Traceback (most recent call last):
+        ...
+        REJECT COIN: double spending
 
 
-        dict = {}: dict(a=2,b=3)
-        list = []: [a,b,c]
-        tuple = (): (a,b,c)
+        #>>> `w1.getBalance()`
+        #>>> `w1.valid`
+        #>>> `w2.getBalance()`
 
+        >>> w2coins = w2.valid.values()
+
+        Wallet #2 redeems coin #0 two times:
+        >>> w2.sendCoins(i,[w2coins[0]],'my account: 123')
+        money redeemed
+        >>> w2.sendCoins(i,[w2coins[0]],'my account: 124')
+        Traceback (most recent call last):
+        ...
+        REJECT COIN: double spending
+
+        Wallet #2 redeems coin #1 with invalid sig:
+        >>> w2coins[1].signature += 1
+        >>> w2.sendCoins(i,[w2coins[1]],'my account: 124')
+        Traceback (most recent call last):
+        ...
+        REJECT COIN: bad signature
         """
+
         #init
         self.issuers = issuers
         self.blanks = []
@@ -112,6 +137,7 @@ class Wallet:
             status,message = issuer.getSignedBlind(str(coin.getBlind()).encode('base64'),coin.value)
             if status == 200:
                 coin.setSignature(long(message))
+                # TODO: What if the Sig does not verify? 
                 self.valid[hash] = coin
                 del(self.pending[hash])
 
@@ -139,21 +165,28 @@ class Wallet:
                 self.deleteCoin(coin)
 
 
-    def receiveCoins(self,coins,message=None):
-        coins_decoded = [decodeCoin(coin) for coin in coins] 
+    def receiveCoins(self,coins_encoded,message=None):
+        coins = [decodeCoin(coin) for coin in coins_encoded] 
         for callback in getCallbacks(self,'receiveCoins'):
-            callback(self,coins,message)
-        for coin in coins_decoded:
-            #TODO make checks (double, allowedbanks)
+            callback(self,coins_encoded,message)
+        for coin in coins:
             hash = coin.getHash()
+            #TODO: check if coin.issuerurl in $allowedbanks
+            if   not True :
+                raise 'REJECT COIN: bad issuer'
             issuer = self.issuers[coin.issuerurl]
-            issuer.checkDoubleSpending([coin.getHash()])
-            if self.coins.has_key(hash):
-                raise 'NilsWantsToSeeThisError'
+            if not coin.pubkey == issuer.getPubKeys()[coin.value] :
+                raise 'REJECT COIN: bad issuer pubKey' 
+            elif not coin.verifySignature() :
+                raise 'REJECT COIN: bad signature'
+            elif not issuer.checkDoubleSpending([coin.getHash()]) :
+                raise 'REJECT COIN: double spending'
+            elif self.coins.has_key(hash) :
+                raise 'REJECT COIN: already in wallet'
             else:
                 self.coins[hash] = coin
                 self.valid[hash] = coin
-                return True
+        return True
 
 
     def deleteCoin(self,coin):

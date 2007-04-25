@@ -34,6 +34,9 @@ class Coin:
         """Returns the blinded hash of the coin"""
         return self.pubkey.blind(self.getHash(), self.blindingFactor)
 
+    def verifySignature(self):
+        return self.pubkey.verify(self.getHash(),(self.signature,))
+
     def setSignature(self,signature):
         signature = self.pubkey.unblind(signature, self.blindingFactor)
         if self.pubkey.verify(self.getHash(),(signature,)):
@@ -42,5 +45,3 @@ class Coin:
             return True
         else:
             return False
-
-
